@@ -29,7 +29,7 @@ Manually edit or delete candidate registrations.
 
 ✅ Job Basket System
 
-Works like a shopping cart — users “add” a job to their basket.
+Works like a shopping cart users “add” a job to their basket.
 
 Prevents duplicate or expired job registrations.
 
