@@ -76,6 +76,10 @@ class AddToJobBasketView(APIView):
             basket.job = job
             basket.created_at = timezone.now()
             basket.save()
+
+            candidate.job = job
+            candidate.save()
+
             return Response({"message": "Your job has been successfully changed to ."})
         
         JobBasket.objects.create(candidate=candidate, job=job)
@@ -90,3 +94,46 @@ class JobBasketList(ListAPIView):
         if user.is_staff:
             return JobBasket.objects.all()
         return JobBasket.objects.filter(candidate__user=user)
+    
+
+class AutoCategorizeCandidatesView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def post(self, request, job_id):
+        try:
+            job = JobPosition.objects.get(id=job_id)
+            candidates = Candidate.objects.filter(job=job).order_by('-gpa')
+
+            if not candidates.exists():
+                return Response({"error": "No candidates found for this job."})
+
+            category_number = 1
+            for candidate in candidates:
+                candidate.category = category_number
+                candidate.save()
+                category_number = 1 if category_number == 3 else category_number + 1
+
+            return Response({"message": f"Candidates have been categorized successfully."})
+        
+        except JobPosition.DoesNotExist:
+            return Response({"error": "Job not found."})
+        
+
+class CandidateGroupedListView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request, job_id):
+        try:
+            job = JobPosition.objects.get(id=job_id)
+            grouped = {}
+
+            for i in range(1, 4):
+                grouped[f"Category {i}"] = list(
+                    Candidate.objects.filter(job=job, category=i)
+                    .order_by('-gpa')
+                    .values('first_name', 'last_name', 'education_level', 'gpa'))
+
+            return Response({"job": job.title,"total_candidates": Candidate.objects.filter(job=job).count(),"groups": grouped})
+
+        except JobPosition.DoesNotExist:
+            return Response({"error": "Job not found."})
