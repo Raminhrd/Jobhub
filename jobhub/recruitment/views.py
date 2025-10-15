@@ -83,6 +83,7 @@ class AddToJobBasketView(APIView):
             return Response({"message": "Your job has been successfully changed to ."})
         
         JobBasket.objects.create(candidate=candidate, job=job)
+        job.decrease_capacity()
         return Response({"message": " added to your basket."})
     
 
