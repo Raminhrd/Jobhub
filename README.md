@@ -1,4 +1,4 @@
-🏢 Recruitment System — Django Project
+🏢 Recruitment System Django Project
 A complete recruitment management system built with Django REST Framework, designed for managing job applications, capacity tracking, and automatic candidate categorization.
 
 🚀 Features
